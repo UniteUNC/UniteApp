@@ -62,11 +62,10 @@ app.all('/googleauth', function(req, res){
   //Create an instance from accessToken
   var accessToken = req.session.access_token;
 
-  // gcal(accessToken).calendarList.list(function(err, data) {
-  //   if(err) return res.send(500,err);
-  //   return res.send(data);
-  // });
-    return res.redirect('/secret')
+  gcal(accessToken).calendarList.list(function(err, data) {
+    if(err) return res.send(500,err);
+    return res.send(data);
+  });
 });
 
 app.all('/googleauthc/:calendarId', function(req, res){
