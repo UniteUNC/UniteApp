@@ -11,6 +11,9 @@ var bodyParser = require('body-parser');
 var session = require('express-session')
 var config = require('./node_modules/google-calendar/specs/config');
 
+var calendarIds = [];
+  var calendarCount = 0;
+
 var app = express();
 
 app.set('views', './views');
@@ -58,23 +61,38 @@ app.get('/auth/callback',
 
 app.all('/googleauth', function(req, res){
 
+  
+
   if(!req.session.access_token) return res.redirect('/auth');
   //Create an instance from accessToken
   var accessToken = req.session.access_token;
 
   gcal(accessToken).calendarList.list(function(err, data) {
     if(err) return res.send(500,err);
+    var items = data.items
+    for(var objKey in items) {
+        var calendars = items[objKey]
+        for(var CalendarKey in calendars) {
+            if (CalendarKey = "id")
+            {
+            calendarIds[calendarCount] = JSON.stringify(calendars[CalendarKey]);
+            calendarCount++;
+            break;
+          }
+       }
+   }
     return res.send(data);
   });
 });
 
-app.all('/googleauthc/:calendarId', function(req, res){
+app.all('/googleauth/:calendarId', function(req, res){
 
   if(!req.session.access_token) return res.redirect('/auth');
 
   //Create an instance from accessToken
   var accessToken     = req.session.access_token;
   var calendarId      = req.params.calendarId;
+      calendarId = calendarId.substr(1)
 
   gcal(accessToken).events.list(calendarId, {maxResults:1}, function(err, data) {
     if(err) return res.send(500,err);
@@ -82,10 +100,9 @@ app.all('/googleauthc/:calendarId', function(req, res){
     console.log(data)
     if(data.nextPageToken){
       gcal(accessToken).events.list(calendarId, {maxResults:1, pageToken:data.nextPageToken}, function(err, data) {
-        console.log(data.items)
+        //console.log(data.items)
       })
     }
-
 
     return res.send(data);
   });
@@ -111,6 +128,7 @@ app.all('/:calendarId/:eventId', function(req, res){
 app.use(stormpathMiddleware);
 
 app.get('/', function (req, res) {
+  console.log(calendarIds);
   res.render('home', {
     title: 'Welcome'
   });
