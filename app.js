@@ -69,18 +69,45 @@ app.all('/googleauth', function(req, res){
 
   gcal(accessToken).calendarList.list(function(err, data) {
     if(err) return res.send(500,err);
-    var items = data.items
-    for(var objKey in items) {
-        var calendars = items[objKey]
-        for(var CalendarKey in calendars) {
-            if (CalendarKey = "id")
-            {
-            calendarIds[calendarCount] = JSON.stringify(calendars[CalendarKey]);
-            calendarCount++;
-            break;
-          }
+    
+      
+      //Obtaining calendar Ids from user
+      var items = data.items
+
+      for(var objKey in items) {
+          var calendars = items[objKey]
+          for(var CalendarKey in calendars) {
+              if (CalendarKey = "id")
+              {
+              calendarIds[calendarCount] = {"id": calendars[CalendarKey]};
+              calendarCount++;
+              break;
+            }
+         }
+      }
+
+
+      var idJson = JSON.stringify(calendarIds);
+
+      //console.log(idJson);
+       var currentdate = new Date();   
+       console.log(currentdate.toISOString())
+
+       var onehourdate = new Date();
+       onehourdate.setHours(onehourdate.getHours());
+
+       var freeBusy = {
+         timeMin: " ",
+         timeMax: " ",
+         timeZone: " ",
+         items: [
+         idJson
+
+         ]
        }
-   }
+       
+
+
     return res.send(data);
   });
 });
@@ -128,7 +155,6 @@ app.all('/:calendarId/:eventId', function(req, res){
 app.use(stormpathMiddleware);
 
 app.get('/', function (req, res) {
-  console.log(calendarIds);
   res.render('home', {
     title: 'Welcome'
   });
