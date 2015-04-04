@@ -18,12 +18,12 @@ var bodyParser = require('body-parser');
 var session = require('express-session')
 var config = require('./node_modules/google-calendar/specs/config');
 
-var calendarIds = [];
-  var calendarCount = 0;
-  var freeBusystring
-  var freeBusy
+
+var freeBusy
 
 var app = express();
+
+
 
 app.set('views', './views');
 app.set('view engine', 'jade');
@@ -82,21 +82,22 @@ app.all('/googleauth', function(req, res){
       
       //Obtaining calendar Ids from user
       var items = data.items
+      var calendarIDstring = "[";
 
       for(var objKey in items) {
           var calendars = items[objKey]
           for(var CalendarKey in calendars) {
               if (CalendarKey = "id")
               {
-              calendarIds[calendarCount] = {"id": calendars[CalendarKey]};
-              calendarCount++;
+              calendarIDstring += "{\"id\": \"" + calendars[CalendarKey] + "\"},"
               break;
             }
          }
       }
 
+      calendarIDstring = calendarIDstring.substr(0,calendarIDstring.length -1) + "]";
 
-      var idJson = JSON.stringify(calendarIds);
+      var calendarIDobj = JSON.parse(calendarIDstring)
 
        var currentdate = new Date();   
        var currentdateString = currentdate.toISOString();
@@ -108,60 +109,10 @@ app.all('/googleauth', function(req, res){
        freeBusy = {
          "timeMin": currentdateString,
          "timeMax": onehourdateString,
-         "items": [
-         idJson
-
-         ]
+         "groupExpansionMax": 1,
+         "items": 
+         calendarIDobj  
        }
-
-       console.log(freeBusy);
-      
-     freeBusystring = JSON.stringify(freeBusy);
-
-      
-
-      //  var headers = {
-      // 'Content-Type': 'application/json',
-      // 'Content-Length': freeBusystring.length
-      
-      //  };
-
-      //  var options = {
-      //   host: 'www.googleapis.com',
-      //   path: '/calendar/v3/freeBusy',
-      //   method: 'POST',
-      //   headers: headers
-      //   };
-
-
-
-      //   // Setup the request.  The options parameter is
-      //   // the object we defined above.
-      //   var req = https.request(options, function(res) {
-      //     res.setEncoding('utf-8');
-
-      //     var responseString = '';
-
-      //     res.on('data', function(data) {
-      //       responseString += data;
-      //     });
-
-      //     res.on('end', function() {
-      //       var resultObject = JSON.parse(responseString);
-      //       console.log(JSON.stringify(resultObject) + "YOYO")
-      //     });
-
-          
-      //    });
-
-      //   req.on('error', function(e) {
-      //     // TODO: handle error.
-      //   });
-
-      //   req.write(freeBusystring);
-      //   req.end();
-
-        // console.log(resultObject)
 
     return res.send(data);
   });
@@ -170,7 +121,7 @@ app.all('/googleauth', function(req, res){
 
 app.all('/googleauth/getjson', function (req, res){
 
-  console.log(freeBusystring)
+  
 
   if(!req.session.access_token) return res.redirect('/auth');
 
