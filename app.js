@@ -1,6 +1,13 @@
 var express = require('express');
 var stormpath = require('express-stormpath');
 
+
+//MongoDB dependencies
+var https = require("https");
+var mongojs = require("mongojs");
+var uri = "mongodb://<dbuser>:<dbpassword>@ds035557.mongolab.com:35557/unite"
+
+
 //Authentication dependencies
 var passport = require('passport')
 var gcal = require('google-calendar');
@@ -13,6 +20,8 @@ var config = require('./node_modules/google-calendar/specs/config');
 
 var calendarIds = [];
   var calendarCount = 0;
+  var freeBusystring
+  var freeBusy
 
 var app = express();
 
@@ -89,27 +98,91 @@ app.all('/googleauth', function(req, res){
 
       var idJson = JSON.stringify(calendarIds);
 
-      //console.log(idJson);
        var currentdate = new Date();   
-       console.log(currentdate.toISOString())
+       var currentdateString = currentdate.toISOString();
 
        var onehourdate = new Date();
-       onehourdate.setHours(onehourdate.getHours());
+       onehourdate.setHours(onehourdate.getHours() + 1);
+       var onehourdateString = onehourdate.toISOString();
 
-       var freeBusy = {
-         timeMin: " ",
-         timeMax: " ",
-         timeZone: " ",
-         items: [
+       freeBusy = {
+         "timeMin": currentdateString,
+         "timeMax": onehourdateString,
+         "items": [
          idJson
 
          ]
        }
-       
 
+       console.log(freeBusy);
+      
+     freeBusystring = JSON.stringify(freeBusy);
+
+      
+
+      //  var headers = {
+      // 'Content-Type': 'application/json',
+      // 'Content-Length': freeBusystring.length
+      
+      //  };
+
+      //  var options = {
+      //   host: 'www.googleapis.com',
+      //   path: '/calendar/v3/freeBusy',
+      //   method: 'POST',
+      //   headers: headers
+      //   };
+
+
+
+      //   // Setup the request.  The options parameter is
+      //   // the object we defined above.
+      //   var req = https.request(options, function(res) {
+      //     res.setEncoding('utf-8');
+
+      //     var responseString = '';
+
+      //     res.on('data', function(data) {
+      //       responseString += data;
+      //     });
+
+      //     res.on('end', function() {
+      //       var resultObject = JSON.parse(responseString);
+      //       console.log(JSON.stringify(resultObject) + "YOYO")
+      //     });
+
+          
+      //    });
+
+      //   req.on('error', function(e) {
+      //     // TODO: handle error.
+      //   });
+
+      //   req.write(freeBusystring);
+      //   req.end();
+
+        // console.log(resultObject)
 
     return res.send(data);
   });
+});
+
+
+app.all('/googleauth/getjson', function (req, res){
+
+  console.log(freeBusystring)
+
+  if(!req.session.access_token) return res.redirect('/auth');
+
+  var accessToken = req.session.access_token;
+
+  gcal(accessToken).freebusy.query(freeBusy,function(err, data) {
+        if(err) return res.send(500,err);
+
+        console.log(data);
+        return res.send(data);
+      });
+
 });
 
 app.all('/googleauth/:calendarId', function(req, res){
