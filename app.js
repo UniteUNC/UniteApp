@@ -3,17 +3,18 @@ var stormpath = require('express-stormpath');
 
 
 //MongoDB dependencies
+var dbconfig = require('./dblogin');
 var https = require("https");
 var mongojs = require("mongojs");
-var uri = "mongodb://<dbuser>:<dbpassword>@ds035557.mongolab.com:35557/unite"
-
+var uri = "mongodb://" + dbconfig.dbuser + ":" + dbconfig.dbpassword + "@ds035557.mongolab.com:35557/unite"
+console.log(uri)
+var db = mongojs(uri, ["UsersFreeBusy"])
 
 //Authentication dependencies
 var passport = require('passport')
 var gcal = require('google-calendar');
 var util = require('util');
 var googleStrategy = require('passport-google-oauth2').Strategy;
-var cookieParser = require('cookie-parser')
 var bodyParser = require('body-parser');
 var session = require('express-session')
 var config = require('./node_modules/google-calendar/specs/config');
@@ -22,8 +23,6 @@ var config = require('./node_modules/google-calendar/specs/config');
 var freeBusy
 
 var app = express();
-
-
 
 app.set('views', './views');
 app.set('view engine', 'jade');
@@ -37,10 +36,11 @@ var stormpathMiddleware = stormpath.init(app, {
 });
 //Passportjs setup start
 
-  app.use(cookieParser());
   app.use(bodyParser());
-  app.use(session({ secret: 'keyboard cat' }));
+  app.use(session({ secret: 'keyboard cat',
+                   }));
   app.use(passport.initialize());
+  app.use(passport.session());
 
 
 passport.use(new googleStrategy({
@@ -55,6 +55,8 @@ passport.use(new googleStrategy({
   }
 ));
 
+app.use(stormpathMiddleware);
+
 app.get('/auth',
   passport.authenticate('google', { session: false, successRedirect: '/', failureRedirect: '/' }));
 
@@ -68,9 +70,7 @@ app.get('/auth/callback',
 
 //Google Calandar
 
-app.all('/googleauth', function(req, res){
-
-  
+app.all('/googleauth',stormpath.loginRequired , function(req, res){
 
   if(!req.session.access_token) return res.redirect('/auth');
   //Create an instance from accessToken
@@ -114,12 +114,12 @@ app.all('/googleauth', function(req, res){
          calendarIDobj  
        }
 
-    return res.send(data);
+    return res.redirect('/googleauth/getjson');
   });
 });
 
 
-app.all('/googleauth/getjson', function (req, res){
+app.all('/googleauth/getjson',stormpath.loginRequired , function (req, res){
 
   
 
@@ -130,7 +130,30 @@ app.all('/googleauth/getjson', function (req, res){
   gcal(accessToken).freebusy.query(freeBusy,function(err, data) {
         if(err) return res.send(500,err);
 
-        console.log(data);
+       
+        //add stormpath userinfo to the json recieved from freebusy query
+        data.username = req.user.username
+
+        data.calendars = JSON.stringify(data.calendars)
+        //remove old queries in the database
+        db.UsersFreeBusy.remove({ username : req.user.username },
+
+          function(err, doc) {
+          if(err != null)
+            console.log(err)
+            
+        }); 
+
+
+        db.UsersFreeBusy.insert(
+        data, function(err, doc) {
+          if(err != null)
+            console.log(err)
+            
+        });
+
+
+
         return res.send(data);
       });
 
@@ -175,8 +198,6 @@ app.all('/:calendarId/:eventId', function(req, res){
   });
 });
 //Google calendar end
-
-app.use(stormpathMiddleware);
 
 app.get('/', function (req, res) {
   res.render('home', {
