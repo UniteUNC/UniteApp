@@ -7,7 +7,6 @@ var dbconfig = require('./dblogin');
 var https = require("https");
 var mongojs = require("mongojs");
 var uri = "mongodb://" + dbconfig.dbuser + ":" + dbconfig.dbpassword + "@ds035557.mongolab.com:35557/unite"
-console.log(uri)
 var db = mongojs(uri, ["UsersFreeBusy"])
 
 //Authentication dependencies
@@ -18,7 +17,6 @@ var googleStrategy = require('passport-google-oauth2').Strategy;
 var bodyParser = require('body-parser');
 var session = require('express-session')
 var config = require('./node_modules/google-calendar/specs/config');
-
 
 var freeBusy
 
@@ -109,7 +107,7 @@ app.all('/googleauth',stormpath.loginRequired , function(req, res){
        freeBusy = {
          "timeMin": currentdateString,
          "timeMax": onehourdateString,
-         "groupExpansionMax": 1,
+         //"groupExpansionMax": 1,
          "items": 
          calendarIDobj  
        }
@@ -132,25 +130,26 @@ app.all('/googleauth/getjson',stormpath.loginRequired , function (req, res){
 
        
         //add stormpath userinfo to the json recieved from freebusy query
-        data.username = req.user.username
+        // data.username = req.user.username
 
-        data.calendars = JSON.stringify(data.calendars)
-        //remove old queries in the database
-        db.UsersFreeBusy.remove({ username : req.user.username },
+        // data.calendars = JSON.stringify(data.calendars)
+        // //remove old queries in the database
+        // db.UsersFreeBusy.remove({ username : req.user.username },
 
-          function(err, doc) {
-          if(err != null)
-            console.log(err)
+        //   function(err, doc) {
+        //   if(err != null)
+        //     console.log(err)
             
-        }); 
+        // }); 
 
 
-        db.UsersFreeBusy.insert(
-        data, function(err, doc) {
-          if(err != null)
-            console.log(err)
+        // db.UsersFreeBusy.insert(
+        // data, function(err, doc) {
+
+        //   if(err != null)
+        //     console.log(err)
             
-        });
+        // });
 
 
 
@@ -208,6 +207,5 @@ app.get('/', function (req, res) {
 
 
 app.use('/profile',require('./profile')());
-app.use('/secret',require('./secret')());
 
 app.listen(3000);
