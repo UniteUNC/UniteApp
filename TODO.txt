@@ -1,0 +1,17 @@
+#TODO list
+
+
+
+Create function to parse friends, (initially, just have comma if multiple friends, and parse that to know what friends they have)
+
+Create a function to retrieve data from the mongoDB, based on friends input
+
+convert the JSON to an easy to read format, viewable to the user
+
+Add location data to JSON data stored in database
+
+On display show approximate location along with availibility
+
+Integrate front end with backend
+
+DEPLOYMENT

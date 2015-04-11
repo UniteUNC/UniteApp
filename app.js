@@ -8,6 +8,7 @@ var https = require("https");
 var mongojs = require("mongojs");
 var uri = "mongodb://" + dbconfig.dbuser + ":" + dbconfig.dbpassword + "@ds035557.mongolab.com:35557/unite"
 var db = mongojs(uri, ["UsersFreeBusy"])
+var userdb = mongojs(uri, ["UsersList"])
 
 //Authentication dependencies
 var passport = require('passport')
@@ -107,7 +108,6 @@ app.all('/googleauth',stormpath.loginRequired , function(req, res){
        freeBusy = {
          "timeMin": currentdateString,
          "timeMax": onehourdateString,
-         //"groupExpansionMax": 1,
          "items": 
          calendarIDobj  
        }
@@ -119,7 +119,8 @@ app.all('/googleauth',stormpath.loginRequired , function(req, res){
 
 app.all('/googleauth/getjson',stormpath.loginRequired , function (req, res){
 
-  
+   var exist = userdb.UsersList.find({ username : req.user.username }).limit(1);
+   console.log(exist);
 
   if(!req.session.access_token) return res.redirect('/auth');
 
@@ -130,73 +131,44 @@ app.all('/googleauth/getjson',stormpath.loginRequired , function (req, res){
 
        
         //add stormpath userinfo to the json recieved from freebusy query
-        // data.username = req.user.username
+        data.username = req.user.username
 
-        // data.calendars = JSON.stringify(data.calendars)
-        // //remove old queries in the database
-        // db.UsersFreeBusy.remove({ username : req.user.username },
+        data.calendars = JSON.stringify(data.calendars)
+        //remove old queries in the database
+        db.UsersFreeBusy.remove({ username : req.user.username },
 
-        //   function(err, doc) {
-        //   if(err != null)
-        //     console.log(err)
+          function(err, doc) {
+          if(err != null)
+            console.log(err)
             
-        // }); 
+        }); 
 
 
-        // db.UsersFreeBusy.insert(
-        // data, function(err, doc) {
+        db.UsersFreeBusy.insert(
+        data, function(err, doc) {
 
-        //   if(err != null)
-        //     console.log(err)
+          if(err != null)
+            console.log(err)
             
-        // });
+        });
 
 
 
-        return res.send(data);
+        return res.redirect('/');
       });
 
 });
 
-app.all('/googleauth/:calendarId', function(req, res){
+app.all('/display',stormpath.loginRequired , function (req, res) {
+ 
 
-  if(!req.session.access_token) return res.redirect('/auth');
 
-  //Create an instance from accessToken
-  var accessToken     = req.session.access_token;
-  var calendarId      = req.params.calendarId;
-      calendarId = calendarId.substr(1)
+  parseFriends(req,res)
 
-  gcal(accessToken).events.list(calendarId, {maxResults:1}, function(err, data) {
-    if(err) return res.send(500,err);
-
-    console.log(data)
-    if(data.nextPageToken){
-      gcal(accessToken).events.list(calendarId, {maxResults:1, pageToken:data.nextPageToken}, function(err, data) {
-        //console.log(data.items)
-      })
-    }
-
-    return res.send(data);
+  res.render('home', {
+    title: 'Welcome'
   });
 });
-
-
-app.all('/:calendarId/:eventId', function(req, res){
-
-  if(!req.session.access_token) return res.redirect('/auth');
-
-  //Create an instance from accessToken
-  var accessToken     = req.session.access_token;
-  var calendarId      = req.params.calendarId;
-  var eventId         = req.params.eventId;
-
-  gcal(accessToken).events.get(calendarId, eventId, function(err, data) {
-    if(err) return res.send(500,err);
-    return res.send(data);
-  });
-});
-//Google calendar end
 
 app.get('/', function (req, res) {
   res.render('home', {
@@ -209,3 +181,34 @@ app.get('/', function (req, res) {
 app.use('/profile',require('./profile')());
 
 app.listen(3000);
+
+
+function parseFriends(req,res){
+  var friendsString = req.user.customData.friends
+  var friendsArray = friendsString.split(",")
+
+  for(index in friendsArray)
+  {
+      db.UsersFreeBusy.find({username : friendsArray[index]}).forEach(function(err, doc) 
+      {
+
+        if(err)
+          console.log(err + "err")
+        
+
+        if (!doc) 
+        {
+          // we visited all docs in the collection
+          return;
+        }
+
+        
+      var jsonretrieve = doc;
+      jsonretrieve.calendars = JSON.parse(jsonretrieve.calendars)      
+
+      //Need to pass this information somewhere in order to create a display for availability for this friend.
+    
+      });
+
+  } 
+};
