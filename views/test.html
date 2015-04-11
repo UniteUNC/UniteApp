@@ -1,0 +1,137 @@
+<!doctype html>
+<html>
+
+<head>
+
+	<title>Unite</title>
+
+	<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial- scale=1.0, user-scalable=yes">
+
+  <script src="components/webcomponentsjs/webcomponents.js">
+  </script>
+
+  <link rel="import" href="components/font-roboto/roboto.html">
+	<link rel="import" href="components/core-toolbar/core-toolbar.html">
+	<link rel="import" href="components/core-header-panel/core-header-panel.html">
+  <link rel="import" href="components/core-scaffold/core-scaffold.html">
+  <link rel="import" href="components/core-item/core-item.html">
+  <link rel="import" href="components/core-item/core-item.html">
+  <link rel="import" href="components/core-animated-pages/core-pages.html">
+
+  	<style>
+  		html,body {
+  			height: 100%;
+  			margin: 0;
+  			background-color: #E5E5E5;
+  			font-family: 'RobotoDraft', sans-serif;
+  		}
+		core-header-panel {
+		     height: 90%;
+		     overflow: auto;
+		     -webkit-overflow-scrolling: touch;
+	 	}
+		core-toolbar {
+		  	background: #33CCCC;
+		  	color: white;
+ 		}
+    core-animated-pages {
+      width: 85%;
+      height: 85%;
+     -webkit-user-select: none;
+      overflow: hidden;
+    }
+    core-animated-pages > * {
+      border-radius: 5px;
+      font-size: 50px;
+      background-color: white;
+    }
+ 		#tabs {
+  			width: 100%;
+  			margins: 0;
+  			-webkit-user-select: none;
+  			-moz-user-select: none;
+  			-ms-user-select: none;
+  			user-select: none;
+  			text-transform: uppercase;
+  		}	
+  		.container {
+   			width: 50%;
+    		margin: 50px auto;
+  		}
+  		@media (min-width: 481px) {
+    	#tabs {
+      		width: 200px;
+    	}
+    	.container {
+      		width: 400px;
+    	}
+      core-animated-pages {
+        width: 90%;
+        height: 90%;
+      }
+  	}
+  	</style>
+
+</head>
+
+<body unresolved>
+
+  <core-scaffold>
+
+  <nav>
+    <core-toolbar><span>Single Page Polymer</span></core-toolbar>
+    <core-menu selected="1">
+      <paper-item noink>
+        <core-icon icon="label-outline"></core-icon>
+        <a href="#one">Single</a>
+      </paper-item>
+      <paper-item noink>
+        <core-icon icon="label-outline"></core-icon>
+        <a href="#two">page</a>
+      </paper-item>
+      <paper-item noink>
+        <core-icon icon="label-outline"></core-icon>
+        <a href="#three">app</a>
+      </paper-item>
+      <paper-item noink>
+        <core-icon icon="label-outline"></core-icon>
+        <a href="#four">using</a>
+      </paper-item>
+      <paper-item noink>
+        <core-icon icon="label-outline"></core-icon>
+        <a href="#five">Polymer</a>
+      </paper-item>
+    </core-menu>
+  </nav>
+
+  <core-toolbar tool flex>
+    <div flex></div>
+    <core-icon-button icon="refresh"></core-icon-button>
+    <core-icon-button icon="add"></core-icon-button>
+  </core-toolbar>
+
+  <div layout horizontal center-center fit>
+    <core-animated-pages id="pages" selected="1">
+      <section layout vertical center-center>
+        <div>Single</div>
+      </section>
+      <section layout vertical center-center>
+        <div>page</div>
+      </section>
+      <section layout vertical center-center>
+        <div>app</div>
+      </section>
+      <section layout vertical center-center>
+        <div>using</div>
+      </section>
+      <section layout vertical center-center>
+        <div>Polymer</div>
+      </section>
+    </core-animated-pages>
+  </div>
+
+</core-scaffold>
+
+</body>
+
+</html>
