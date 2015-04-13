@@ -2,9 +2,9 @@
 
 
 
-Create function to parse friends, (initially, just have comma if multiple friends, and parse that to know what friends they have)
+Create function to parse friends, (initially, just have comma if multiple friends, and parse that to know what friends they have) DONE
 
-Create a function to retrieve data from the mongoDB, based on friends input
+Create a function to retrieve data from the mongoDB, based on friends input DONE
 
 convert the JSON to an easy to read format, viewable to the user
 

@@ -119,8 +119,8 @@ app.all('/googleauth',stormpath.loginRequired , function(req, res){
 
 app.all('/googleauth/getjson',stormpath.loginRequired , function (req, res){
 
-   var exist = userdb.UsersList.find({ username : req.user.username }).limit(1);
-   console.log(exist);
+   //var exist = userdb.UsersList.find({ username : req.user.username }).limit(1);
+   //console.log(exist);
 
   if(!req.session.access_token) return res.redirect('/auth');
 
@@ -183,32 +183,69 @@ app.use('/profile',require('./profile')());
 app.listen(3000);
 
 
-function parseFriends(req,res){
+function parseFriends(req,res)
+{
+  var starttimes = [];
+  var endtimes = []
+  var times = [starttimes, endtimes]
+
   var friendsString = req.user.customData.friends
   var friendsArray = friendsString.split(",")
 
+  var currentdate = new Date();
+
+  //Date.parse(datestring)
+
   for(index in friendsArray)
   {
+      //Query is asynchronous
       db.UsersFreeBusy.find({username : friendsArray[index]}).forEach(function(err, doc) 
       {
 
         if(err)
           console.log(err + "err")
-        
+          
 
         if (!doc) 
         {
-          // we visited all docs in the collection
-          return;
+        // we visited all docs in the collection
+        return;
         }
 
-        
-      var jsonretrieve = doc;
-      jsonretrieve.calendars = JSON.parse(jsonretrieve.calendars)      
+          
+        var jsonretrieve = doc;
+        jsonretrieve.calendars = JSON.parse(jsonretrieve.calendars)   
+        //Loop to iterate through the JSON object and pick out busy times from the json object
+        for (var key in jsonretrieve.calendars) 
+        {
+          if (jsonretrieve.calendars.hasOwnProperty(key)) 
+          {
+            if(jsonretrieve.calendars[key])
+            {
+                
+              var busyItems = jsonretrieve.calendars[key]
+              var timeItems = busyItems.busy[0]
+                
+              if(timeItems)
+              {
 
-      //Need to pass this information somewhere in order to create a display for availability for this friend.
-    
+                starttimes[starttimes.length] = new Date(Date.parse(timeItems.start));
+                endtimes[endtimes.length] = new Date(Date.parse(timeItems.end));
+              }
+
+                
+            }
+          }
+            
+        }  
+
+        //console.log(times) 
+
+        //Need to pass this information somewhere in order to create a display for availability for this friend.
+      
       });
 
   } 
+
+  
 };
