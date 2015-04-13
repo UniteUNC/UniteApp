@@ -239,7 +239,7 @@ function parseFriends(req,res)
             
         }  
 
-        //console.log(times) 
+        //console.log(times)1 
 
         //Need to pass this information somewhere in order to create a display for availability for this friend.
       
