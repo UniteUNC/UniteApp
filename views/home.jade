@@ -1,4 +1,32 @@
 html
+	script(src='/socket.io/socket.io.js') 
+	script.
+		var socket = io.connect('http://localhost:3000');
+		var options = {
+		  enableHighAccuracy: true,
+		  timeout: 5000,
+		  maximumAge: 0
+		};
+
+		function success(pos) {          
+		  var crd = pos.coords;
+
+		  console.log('Your current position is:');
+		  console.log('Latitude : ' + crd.latitude);
+		  console.log('Longitude: ' + crd.longitude);
+		  console.log('More or less ' + crd.accuracy + ' meters.');
+		  
+		  socket.emit("send:coords", crd.latitude);
+		  
+		};
+
+		function error(err) {
+		  console.warn('ERROR(' + err.code + '): ' + err.message);
+		};
+		
+		navigator.geolocation.getCurrentPosition(success, error, options);	
+		
+		
 	head
 		title=title
 		link(href='//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css', rel='stylesheet')
