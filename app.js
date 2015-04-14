@@ -24,7 +24,7 @@ var config = require('./node_modules/google-calendar/specs/config');
 
 var freeBusy
 
-var app = express();
+var app = express(); //change
 
 var static = require('node-static');
 var server = require('http').Server(app);
