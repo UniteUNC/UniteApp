@@ -1,7 +1,8 @@
 html
 	script(src='/socket.io/socket.io.js') 
 	script.
-		var socket = io.connect('http://localhost:3000');
+		var username = !{username};
+		var io = io.connect()
 		var options = {
 		  enableHighAccuracy: true,
 		  timeout: 5000,
@@ -10,13 +11,10 @@ html
 
 		function success(pos) {          
 		  var crd = pos.coords;
-
-		  console.log('Your current position is:');
-		  console.log('Latitude : ' + crd.latitude);
-		  console.log('Longitude: ' + crd.longitude);
-		  console.log('More or less ' + crd.accuracy + ' meters.');
-		  
-		  socket.emit("send:coords", crd.latitude);
+		  var coord = [crd.latitude, crd.longitude, username];
+		  console.log(coord);
+		  io.emit('ready', coord);
+		  //socket.emit("send:coords", 	coord);
 		  
 		};
 
@@ -24,7 +22,10 @@ html
 		  console.warn('ERROR(' + err.code + '): ' + err.message);
 		};
 		
+		
 		navigator.geolocation.getCurrentPosition(success, error, options);	
+		  
+		
 		
 		
 	head

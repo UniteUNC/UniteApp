@@ -1,4 +1,4 @@
-var express = require('express');
+var express = require('express.io');
 var stormpath = require('express-stormpath');
 var geolocation = require('geolocation');
 
@@ -9,6 +9,7 @@ var mongojs = require("mongojs");
 var uri = "mongodb://" + dbconfig.dbuser + ":" + dbconfig.dbpassword + "@ds035557.mongolab.com:35557/unite"
 var db = mongojs(uri, ["UsersFreeBusy"]);
 var userdb = mongojs(uri, ["UsersList"]);
+var http = require("http");
 
 //Authentication dependencies
 var passport = require('passport');
@@ -19,10 +20,12 @@ var bodyParser = require('body-parser');
 var session = require('express-session');
 var config = require('./node_modules/google-calendar/specs/config');
 
+
 // make html, js & css files accessible
 //var files = new static.Server('./public');
 
-var freeBusy
+var freeBusy;
+var tempcoord = [];
 
 var app = express(); //change
 
@@ -64,17 +67,6 @@ passport.use(new googleStrategy({
 ));
 
 app.use(stormpathMiddleware);
-
-io.sockets.on('connection', function (socket) {
-
-  // start listening for coords
-  socket.on('send:coords', function (data) {
-	  console.log(data)
-
-  	// broadcast your coordinates to everyone except you
-  	//socket.broadcast.emit('load:coords', data);
-  });
-});
 
 
 app.get('/auth',
@@ -125,7 +117,7 @@ app.all('/googleauth',stormpath.loginRequired , function(req, res){
        var onehourdate = new Date();
        onehourdate.setHours(onehourdate.getHours() + 1);
        var onehourdateString = onehourdate.toISOString();
-
+	  //change to store in stormpath user custom data instead of global variable
        freeBusy = {
          "timeMin": currentdateString,
          "timeMax": onehourdateString,
@@ -137,6 +129,12 @@ app.all('/googleauth',stormpath.loginRequired , function(req, res){
   });
 });
 
+app.http().io()
+
+app.io.route('ready',function(req) {
+	db.UsersFreeBusy.update({username : req.data[2]}, {$set:{coordlat: req.data[0], coordlong: req.data[1]}});
+	
+})
 
 app.all('/googleauth/getjson',stormpath.loginRequired , function (req, res){
 
@@ -192,15 +190,10 @@ app.all('/display',stormpath.loginRequired , function (req, res) {
 });
 
 app.get('/', function (req, res) {
-  // geolocation.getCurrentPosition(function (err, position) {
-  // if (err) throw err
-  // console.log(position)
-  // })
-
-  //console.log(req.header['user-agent'])
-
+  	
   res.render('home', {
-    title: 'Welcome'
+    title: 'Welcome',
+	username: JSON.stringify(req.user.username)
   });
 });
 
@@ -208,7 +201,7 @@ app.get('/', function (req, res) {
 
 app.use('/profile',require('./profile')());
 
-server.listen(3000);
+app.listen(3000);
 io.set('origins', '*:*');
 
 function parseFriends(req,res)
