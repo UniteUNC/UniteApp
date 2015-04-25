@@ -1,30 +1,15 @@
 (function() {
 "use strict";
 	
-var DEFAULT_ROUTE = 'one';
+var DEFAULT_ROUTE = '';
 	
-var template = document.querySelector('#t');
+//var template = document.querySelector('template[is="auto-binding"]');
+var tabs = document.querySelector('paper-tabs');
 	
 template.pages = [
   {name: 'My Profile', hash: 'one'},
   {name: 'Settings', hash: 'two'}
 ];
-	
-	
-template.addEventListener('template-bound', function(e) {
-  var keys = document.querySelector('#keys');
-	
-	// Allow selecting pages by num keypad. Dynamically add
-  // [1, template.pages.length] to key mappings.
-  var keysToAdd = Array.apply(null, template.pages).map(function(x, i) {
-    return i + 1;
-  }).reduce(function(x, y) {
-    return x + ' ' + y;
-  });
-  keys.keys += ' ' + keysToAdd;
-
-  this.route = this.route || DEFAULT_ROUTE; // Select initial route.
-});
 
 template.keyHandler = function(e, detail, sender) {
   var pages = document.querySelector('#pages');
@@ -34,20 +19,6 @@ template.keyHandler = function(e, detail, sender) {
   if (!isNaN(num) && num <= this.pages.length) {
     pages.selectIndex(num - 1);
     return;
-  }
-
-  switch (detail.key) {
-    case 'left':
-    case 'up':
-      pages.selectPrevious();
-      break;
-    case 'right':
-    case 'down':
-      pages.selectNext();
-      break;
-    case 'space':
-      detail.shift ? pages.selectPrevious() : pages.selectNext();
-      break;
   }
 };
 
@@ -60,10 +31,18 @@ template.cyclePages = function(e, detail, sender) {
   e.shiftKey ? sender.selectPrevious(true) : sender.selectNext(true);
 };
 
+//Automatically close scaffold drawer
 template.menuItemSelected = function(e, detail, sender) {
   if (detail.isSelected) {
     document.querySelector('#scaffold').closeDrawer();
   }
 };
+	
+	//Script for paper tabs
+	var tabs = document.querySelector('paper-tabs');
+
+	tabs.addEventListener('core-select', function() {
+		console.log("Selected: " + tabs.selected);
+	});
 	
 })();

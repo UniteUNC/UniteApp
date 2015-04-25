@@ -9,13 +9,13 @@
 	<link rel="stylesheet" href="styles.css" shim-shadowdom>
 </head>
 	
-<body unresolved>
+<body unresolved fullbleed>
 	
 	<core-scaffold>
 		
 		<nav>
 			<core-toolbar><span>Unite</span></core-toolbar>
-			<core-menu selected="1">
+			<core-menu selected="0">
 				<paper-item noink>
 					<core-icon icon="label-outline"></core-icon>
 					<a href="#one">My Profile</a>
@@ -26,8 +26,14 @@
 				</paper-item>
 			</core-menu>
 		</nav>
-
+		
 		<core-toolbar tool flex>
+			<core-toolbar>
+            <paper-tabs id="tabs" selected="all" self-end>
+                <paper-tab name="friends">Friends</paper-tab>
+                <paper-tab name="events">Events</paper-tab>
+            </paper-tabs>
+        </core-toolbar>
 			<div flex></div>
 			<core-icon-button icon="refresh"></core-icon-button>
 		</core-toolbar>
@@ -44,8 +50,10 @@
 	</div>
 		
 </core-scaffold>
+	
+<div layout horizontal center-right>
+	<paper-fab icon="add"></paper-fab>
+</div>	
 
 </body>
-
-
 </html>
