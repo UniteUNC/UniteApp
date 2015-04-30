@@ -3,7 +3,7 @@
 	
 var DEFAULT_ROUTE = '';
 	
-//var template = document.querySelector('template[is="auto-binding"]');
+var template = document.querySelector('#t');
 var tabs = document.querySelector('paper-tabs');
 	
 template.pages = [
@@ -34,7 +34,7 @@ template.cyclePages = function(e, detail, sender) {
 //Automatically close scaffold drawer
 template.menuItemSelected = function(e, detail, sender) {
   if (detail.isSelected) {
-    document.querySelector('#scaffold').closeDrawer();
+    this.$ && document.querySelector('#scaffold').closeDrawer();
   }
 };
 	

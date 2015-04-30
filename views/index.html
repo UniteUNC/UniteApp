@@ -4,14 +4,14 @@
 <head>
 	<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
 	<title>Unite</title>
-	<script src="components/webcomponentsjs/webcomponents.js"></script>
+	<script src="bower_components/webcomponentsjs/webcomponents.js"></script>
 	<link rel="import" href="elements.html">
 	<link rel="stylesheet" href="styles.css" shim-shadowdom>
 </head>
 	
 <body unresolved fullbleed>
 	
-	<core-scaffold>
+	<core-scaffold id="scaffold">
 		
 		<nav>
 			<core-toolbar><span>Unite</span></core-toolbar>
@@ -27,30 +27,27 @@
 			</core-menu>
 		</nav>
 		
+		<!--Top toolbar-->
 		<core-toolbar tool flex>
 			<core-toolbar>
-            <paper-tabs id="tabs" selected="all" self-end>
-                <paper-tab name="friends">Friends</paper-tab>
-                <paper-tab name="events">Events</paper-tab>
-            </paper-tabs>
-        </core-toolbar>
-			<div flex></div>
+						<paper-tabs id="tabs" selected="friends" self-end>
+								<paper-tab name="friends">Friends</paper-tab>
+								<paper-tab name="events">Events</paper-tab>
+						</paper-tabs>
+				</core-toolbar>
+			<div flex></div> <!--Spacing between tabs and refresh button-->
 			<core-icon-button icon="refresh"></core-icon-button>
 		</core-toolbar>
-
-		<div layout horizontal center-center fit>
-		<core-animated-pages id="pages">
-			<section layout vertical center>
-				<div>My Profile</div>
-			</section>
-			<section layout vertical center>
-				<div>Settings</div>
-			</section>
-		</core-animated-pages>
-	</div>
+		
+		<!--Elements in scaffold window-->
+		<div id="cards" layout vertical center-center fit>
+				<swipeable-card>Swipe Me!</swipeable-card>
+				<swipeable-card>Swipe Me!</swipeable-card>
+		</div>
 		
 </core-scaffold>
-	
+
+<!--Floation Action Button-->
 <div id="add_button">
 	<paper-fab icon="add"></paper-fab>
 </div>	
