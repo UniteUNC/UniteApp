@@ -10,12 +10,6 @@ core-animated-pages {
   -webkit-user-select: none;
   overflow: hidden;
 }
-core-animated-pages > * {
-  border-radius: 5px;
-  font-size: 35px;
-  background-color: white;
-}
-
 body /deep/ core-toolbar {
   background-color: #03a9f4;
   color: #fff;
