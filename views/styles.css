@@ -4,12 +4,6 @@ html,body {
 	background-color: #E5E5E5;
 	font-family: 'Open Sans', sans-serif;
 }
-core-animated-pages {
-  width: 90%;
-  height: 90%;
-  -webkit-user-select: none;
-  overflow: hidden;
-}
 body /deep/ core-toolbar {
   background-color: #03a9f4;
   color: #fff;
