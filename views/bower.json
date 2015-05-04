@@ -1,0 +1,22 @@
+{
+  "name": "UniteAppViews",
+  "version": "0.0.1",
+  "homepage": "https://github.com/UniteUNC/UniteApp",
+  "authors": [
+    "sifronbenjamin <sifronbenjamin@gmail.com>"
+  ],
+  "description": "Polymer components for Unite frontend",
+  "main": "index.html",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "components"
+  ],
+  "dependencies": {
+    "polymer": "Polymer/polymer#0.5"
+  }
+}

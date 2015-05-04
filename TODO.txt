@@ -1,6 +1,6 @@
 #TODO list
 
-
+Query 6 hours instead of 6 1hour segments?
 
 Create function to parse friends, (initially, just have comma if multiple friends, and parse that to know what friends they have) DONE
 

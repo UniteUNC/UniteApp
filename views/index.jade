@@ -1,0 +1,79 @@
+doctype html
+html
+      
+head
+    meta(name='viewport', content='width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes')
+
+    title Unite
+
+    script(src='./public/components/webcomponentsjs/webcomponents.js')
+
+    link(rel='import', href='./public/elements.html')
+
+    link(rel='stylesheet', href='./public/styles.css', shim-shadowdom='')
+
+    script(src='/socket.io/socket.io.js') 
+    script(src='https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js')
+    script.
+
+      var username = !{username};
+      var io = io.connect()
+      var options = {
+        enableHighAccuracy: true,
+        timeout: 5000,
+        maximumAge: 0
+      };
+
+      function success(pos) {          
+        var crd = pos.coords;
+        var coord = [crd.latitude, crd.longitude, username];
+        console.log(coord);
+        io.emit('ready', coord);
+        //socket.emit("send:coords",  coord);
+        
+      };
+
+      function error(err) {
+        console.warn('ERROR(' + err.code + '): ' + err.message);
+      };
+      
+
+      
+      navigator.geolocation.getCurrentPosition(success, error, options);  
+
+  body(unresolved='', fullbleed='')
+    
+      core-scaffold#scaffold
+        nav
+          core-toolbar
+            span Unite
+          
+          core-menu(selected='0')
+            paper-item(noink='')
+              core-icon(icon='label-outline')
+              My Profile
+            
+            paper-item(noink='')
+              core-icon(icon='settings')
+              Settings
+        // Top toolbar
+        core-toolbar(tool='', flex='')
+          core-toolbar
+            paper-tabs#tabs(selected='friends', self-end='')
+              paper-tab(name='friends') Friends
+              
+              paper-tab(name='events') Events
+          
+          div(flex='')
+          // Spacing between tabs and refresh button
+          core-icon-button(icon='refresh')
+        // Elements in scaffold window
+        
+        #cards(layout='', vertical='', center-center='', fit='')
+          //swipeable-card Swipe Me!
+          post-list(show='all' username='#{data}')           
+          //swipeable-card Swipe Me!
+    // Floation Action Button
+    #add_button
+      paper-fab(icon='add')
+

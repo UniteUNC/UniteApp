@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+	
+<head>
+	<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+	<title>Unite</title>
+	<script src="./public/components/webcomponentsjs/webcomponents.js"></script>
+	<link rel="import" href="./public/elements.html">
+	<link rel="stylesheet" href="./public/styles.css" shim-shadowdom>
+</head>
+	
+<body unresolved fullbleed>
+	
+		<core-scaffold id="scaffold">
+
+			<nav>
+				<core-toolbar><span>Unite</span></core-toolbar>
+				<core-menu selected="0">
+					<paper-item noink>
+						<core-icon icon="label-outline"></core-icon>
+						My Profile
+					</paper-item>
+					<paper-item noink>
+						<core-icon icon="settings"></core-icon>
+						Settings
+					</paper-item>
+				</core-menu>
+			</nav>
+
+			<!--Top toolbar-->
+			<core-toolbar tool flex>
+				<core-toolbar>
+							<paper-tabs id="tabs" selected="friends" self-end>
+									<paper-tab name="friends">Friends</paper-tab>
+									<paper-tab name="events">Events</paper-tab>
+							</paper-tabs>
+					</core-toolbar>
+				<div flex></div> <!--Spacing between tabs and refresh button-->
+				<core-icon-button icon="refresh"></core-icon-button>
+			</core-toolbar>
+
+			<!--Elements in scaffold window-->
+			<div id="cards" layout vertical center-center fit>
+					<swipeable-card>Swipe Me!</swipeable-card>
+					<swipeable-card>Swipe Me!</swipeable-card>
+			</div>
+</core-scaffold>
+
+<!--Floation Action Button-->
+<div id="add_button">
+	<paper-fab icon="add"></paper-fab>
+</div>	
+
+</body>
+</html>

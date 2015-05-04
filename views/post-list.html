@@ -1,0 +1,59 @@
+<link rel="import" href="./components/polymer/polymer.html">
+<link rel="import" href="./swipeable-card.html">
+<polymer-element name="post-list" attributes="show username">
+  
+	<template>
+    <style>
+    
+    
+    </style>
+    
+    <div layout vertical center>
+
+      <template repeat="{{d in data}}">
+        <swipeable-card>
+			<p>{{d.start}}</p>
+			<p>{{d.end}}</p>
+			<p>{{d.username}}</p>
+			<p>{{d.available}}</p>
+			
+        </swipeable-card>
+      </template>
+      
+    </div>
+  </template>
+  <script>
+   
+  Polymer('post-list', {
+	  
+	 ready: function() {
+        // populate the element’s data model
+        // (the salutations array)
+		 this.data = JSON.parse(this.username);
+		 
+		 console.log(this.data);
+		 
+		 for (var key in this.data)
+		 {
+			 console.log(this.data[key].username);
+			 
+			 if (this.data[key].start == 0)
+				 this.data[key].start = ""
+				 
+			 if (this.data[key].end == 0)
+				 this.data[key].end = ""
+				 
+			 if (this.data[key].available == "true")
+				 this.data[key].available = "Available!"
+				
+	         if(this.data[key].available == "false")
+				 this.data[key].available == "Busy!"
+		 }
+		 
+		 
+      }
+	  
+	  
+   });
+  </script>
+</polymer-element>
