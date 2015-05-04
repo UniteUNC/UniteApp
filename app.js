@@ -68,7 +68,7 @@ var stormpathMiddleware = stormpath.init(app, {
 passport.use(new googleStrategy({
     clientID: config.consumer_key,
     clientSecret: config.consumer_secret,
-    callbackURL: "http://localhost:3000/auth/callback",
+    callbackURL: "/auth/callback",
     scope: ['openid', 'email', 'https://www.googleapis.com/auth/calendar']
   },
   function(accessToken, refreshToken, profile, done) {
@@ -246,12 +246,12 @@ app.all('/display',stormpath.loginRequired , function (req, res) {
 
 app.use('/profile',require('./profile')());
 
-//app.listen(3000);
+app.listen(3000);
 //Openshift deployment
-var server_port = process.env.OPENSHIFT_NODEJS_PORT || 8080
-var server_ip_address = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1'
- 
-app.listen(server_port, server_ip_address)
+//var server_port = process.env.OPENSHIFT_NODEJS_PORT || 8080
+//var server_ip_address = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1'
+// 
+//app.listen(server_port, server_ip_address)
 
 io.set('origins', '*:*');
 
