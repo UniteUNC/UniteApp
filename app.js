@@ -25,6 +25,8 @@ var session = require('express-session');
 var config = require('./node_modules/google-calendar/specs/config');
 
 
+
+
 // make html, js & css files accessible
 //var files = new static.Server('./public');
 
@@ -236,7 +238,15 @@ app.all('/display',stormpath.loginRequired , function (req, res) {
 
 app.use('/profile',require('./profile')());
 
-app.listen(3000);
+//app.listen(3000);
+//Openshift deployment
+var server_port = process.env.OPENSHIFT_NODEJS_PORT || 8080
+var server_ip_address = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1'
+ 
+server.listen(server_port, server_ip_address, function () {
+  console.log( "Listening on " + server_ip_address + ", server_port " + port )
+});
+
 io.set('origins', '*:*');
 
 function parseFriends(req,res)
