@@ -3,6 +3,7 @@ var stormpath = require('express-stormpath');
 var geolocation = require('geolocation');
 var geolib = require('geolib');
 
+
 var app = express(); //change
 app.use("/googleauth/public",express.static(__dirname + '/views'));
 
@@ -25,12 +26,8 @@ var session = require('express-session');
 var config = require('./node_modules/google-calendar/specs/config');
 
 
-
-
 // make html, js & css files accessible
 //var files = new static.Server('./public');
-
-
 
 var static = require('node-static');
 var server = require('http').Server(app);
@@ -40,7 +37,7 @@ app.set('views', './views');
 app.set('view engine', 'jade');
 
 var stormpathMiddleware = stormpath.init(app, {
-      apiKeyFile: '/Users/Admin/Documents/Comp390/apiKey.properties',
+      apiKeyFile: __dirname +'/apiKey.properties',
       application: 'https://api.stormpath.com/v1/applications/2fZ2OU3JhLWWiHPE8WsECM',
       secretKey: 'T2NVglGDiABcKWEwGlUz',
       expandCustomData: true,
