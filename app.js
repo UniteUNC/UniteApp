@@ -14,6 +14,7 @@ var mongojs = require("mongojs");
 var uri = "mongodb://" + dbconfig.dbuser + ":" + dbconfig.dbpassword + "@ds035557.mongolab.com:35557/unite"
 var db = mongojs(uri, ["UsersFreeBusy"]);
 var userdb = mongojs(uri, ["UsersList"]);
+var sessiondb = mongojs(uri, ["Session"]);
 var http = require("http");
 
 //Authentication dependencies
@@ -24,6 +25,7 @@ var googleStrategy = require('passport-google-oauth2').Strategy;
 var bodyParser = require('body-parser');
 var session = require('express-session');
 var config = require('./node_modules/google-calendar/specs/config');
+var MongoStore = require('express-session-mongo');
 
 
 // make html, js & css files accessible
@@ -47,9 +49,18 @@ var stormpathMiddleware = stormpath.init(app, {
   
   app.use(bodyParser());
   app.use(session({ secret: 'keyboard cat',
+				   store: new MongoStore({
+                	url: uri,
+                	collection: 'Sessions'
+            })
                    }));
   app.use(passport.initialize());
   app.use(passport.session());
+
+  sessiondb.Session.ensureIndex( { "lastAccess": 1 }, { expireAfterSeconds: 3600 },function(error) {
+  if (error) {
+   // oops!
+  }}); 
   
   
 
@@ -235,12 +246,12 @@ app.all('/display',stormpath.loginRequired , function (req, res) {
 
 app.use('/profile',require('./profile')());
 
-//app.listen(3000);
+app.listen(3000);
 //Openshift deployment
-var server_port = process.env.OPENSHIFT_NODEJS_PORT || 8080
-var server_ip_address = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1'
- 
-app.listen(server_port, server_ip_address)
+//var server_port = process.env.OPENSHIFT_NODEJS_PORT || 8080
+//var server_ip_address = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1'
+// 
+//app.listen(server_port, server_ip_address)
 
 io.set('origins', '*:*');
 
