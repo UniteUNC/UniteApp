@@ -106,18 +106,16 @@ app.all('/',stormpath.loginRequired , function(req, res){
 	
 	
 	var freeBusy;
-	
-  console.log("CHECKPOINT 1")
 
   if(!req.session.access_token) 
   {
-	  console.log("no access token")
+	  //console.log("no access token")
 	  return res.redirect('/auth');
   }
   //Create an instance from accessToken
   var accessToken = req.session.access_token; 
 	
-  console.log("CHECKPOINT 2");
+  
 	
 
   gcal(accessToken).calendarList.list(function(err, data) {
@@ -159,7 +157,6 @@ app.all('/',stormpath.loginRequired , function(req, res){
 	   
 	   req.session.freebusy = freeBusy
 	   
-	   console.log("CHECKPOINT 3")
 
     return res.redirect('/googleauth/getjson');
   });
@@ -180,8 +177,6 @@ app.all('/googleauth/getjson',stormpath.loginRequired , function (req, res){
   if(!req.session.access_token) return res.redirect('/auth');
 
 	
- console.log("CHECKPOINT 4")
-	
   var accessToken = req.session.access_token;
 
   gcal(accessToken).freebusy.query(req.session.freebusy,function(err, data) {
@@ -189,11 +184,11 @@ app.all('/googleauth/getjson',stormpath.loginRequired , function (req, res){
 
        
         //add stormpath userinfo to the json recieved from freebusy query
-        data.username = req.user.username
+        data.username = ((req.user.username).toString()).toLowerCase();
 
         data.calendars = JSON.stringify(data.calendars)
         //remove old queries in the database
-        db.UsersFreeBusy.remove({ username : req.user.username },
+        db.UsersFreeBusy.remove({ username : ((req.user.username).toString()).toLowerCase() },
 
           function(err, doc) {
           if(err)
@@ -214,9 +209,6 @@ app.all('/googleauth/getjson',stormpath.loginRequired , function (req, res){
 			
           
   	});  
-	  
-	  console.log("CHECKPOINT 5")
-	  
 	  	
         });
 	
@@ -280,22 +272,30 @@ function parseFriends(req,res)
 
   var friendsString = req.user.customData.friends
   if(friendsString)
+  {
+		  
   	var friendsArray = friendsString.split(",")
+	
+	for(var z = 0; z < friendsArray.length; z++)
+	{
+			friendsArray[z] = friendsArray[z].toLowerCase();
+			//friendsArray[z] = friendsArray[z].replace(/\s+/g, '');
+	}
+	  
+	
+  }
   else
 	var friendsArray = [];
   var friendIndex = 0;
 
   var currentdate = new Date();
 
-  //Date.parse(datestring)
  
-  console.log("CHECKPOINT 5.5")	
-  console.log(friendsArray + friendsArray.length);
   asyncLoop(friendsArray.length , function(loop) {
     //Query is asynchronous
       db.UsersFreeBusy.find({username : friendsArray[friendIndex]}).forEach(function(err, doc) 
       {
-		  console.log(friendsArray[friendIndex] + "123");
+		  
 		  
 		  starttimes = [];
 		  endtimes = []
@@ -306,7 +306,7 @@ function parseFriends(req,res)
 
         if (!doc || doc == null) 
         {
-			console.log("no doc")
+			//console.log("no doc")
         // we visited all docs in the collection
         return;
         }  
@@ -345,28 +345,37 @@ function parseFriends(req,res)
 		  //if user if available for the foreseeable future (6 hours)
 		  if(starttimes.length == 0)
 		  {
-			  peopleData[peopleData.length] = new personData(0,0,jsonretrieve.username, "true", jsonretrieve.coordlat, jsonretrieve.coordlong);
+			  peopleData[peopleData.length] = new personData(0,0,jsonretrieve.username, "false", jsonretrieve.coordlat, jsonretrieve.coordlong);
 		  }
 				
 		  else
 		  {
-			  var minstart;  //= starttimes[0];
-			  var minend;//= endtimes[0];
+			  var minstart = 0;  //= starttimes[0];
+			  var minend = 0;//= endtimes[0];
 			  var busy = null;
 			  for (j = 0; j < starttimes.length;j++)
 			  {
 				  
 				  if(starttimes[j] < currentdate && endtimes[j] > currentdate)
-						  busy = "true";
+				  {
+					  busy = "true";
+					  minstart = starttimes[j];
+					  break;
+				  }
 				  
 				  if(starttimes[j] > currentdate && busy != "true")
 					  busy = "false";
 				  
 				 
 					  
-				  if(typeof(minstart) === 'undefined')
+				  if(minstart == 0)
 				  {
-					  minstart = starttimes[j];
+					  if(starttimes[j] > currentdate)
+					  {
+						  minstart = starttimes[j];
+						  busy = "false"
+						  break;
+					  }
 					  
 					  if(starttimes[j] < currentdate && endtimes[j] > currentdate)
 						  busy = "true";
@@ -379,29 +388,52 @@ function parseFriends(req,res)
 			  
 			  for (k = 0; k < endtimes.length;k++)
 			  {
-				  if (endtimes[k] < minend || (starttimes[j] < currentdate && enditmes[j] < currentdate))
-					  minend = endtimes[k];
-				  
-				  if(typeof(minend) === 'undefined')
+				  if ((starttimes[k] < currentdate && endtimes[k] > currentdate))
 				  {
-					  minend = endtimes[k]
+					  minend = endtimes[k];
+					  break;
+				  }
+				  
+				  if((minend) == 0)
+				  {
+					  if (endtimes[k] > currentdate)
+					  {
+						  minend = endtimes[k]
+						  break;
+					  }
 				  }
 			  }
-			  console.log(minstart + "45" + minend)
 			  
-			  var hour, min;
 			  
-			  hour = minstart.getHours();
-			  min = minstart.getMinutes();
+			  var hour, minute;
+			  if(minstart != 0)
+			  {
+				  hour = minstart.getHours();
+				  minute = minstart.getMinutes();
+				  
+				  if(minute < 10)
+					  minute = "0" + minute;
+				  
+				  	
 			  
-			  var minstartstring = hour + ":" + min;
+			  var minstartstring = hour + ":" + minute;
 			  
 			  hour = minend.getHours();
-			  min = minend.getMinutes();
-			  var minendstring = hour + ":" + min;
+			  minute = minend.getMinutes();
+				  
+				  if(minute < 10)
+					  minute = "0" + minute;
+				  
+			  var minendstring = hour + ":" + minute;
 			  
 			 
 				  peopleData[peopleData.length] = new personData(minstartstring,minendstring,jsonretrieve.username, busy, jsonretrieve.coordlat, jsonretrieve.coordlong);
+			  }
+			  else
+			  {
+				  peopleData[peopleData.length] = new personData(0,0,jsonretrieve.username, busy, jsonretrieve.coordlat, jsonretrieve.coordlong);
+			  }
+			  
 			
 		  }
 
@@ -412,7 +444,6 @@ function parseFriends(req,res)
       	loop.next()
       })},
     function(){
-	  console.log("CHECKPOINT 6")
 	  return res.render('index', {
 	  
 	    username: req.session.username,
