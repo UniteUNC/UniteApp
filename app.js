@@ -250,7 +250,7 @@ app.use('/profile',require('./profile')());
 //Openshift deployment
 var server_port = process.env.OPENSHIFT_NODEJS_PORT || 8080
 var server_ip_address = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1'
- 
+// 
 app.listen(server_port, server_ip_address)
 
 io.set('origins', '*:*');
@@ -352,7 +352,7 @@ function parseFriends(req,res)
 				  }
 				  
 				  
-				  if ((starttimes[j] < minstart && endtimes[j] < minend) || (starttimes[j] < currentdate && enditmes[j] < currentdate))
+				  if ((starttimes[j] < minstart && endtimes[j] < minend) || (starttimes[j] < currentdate && endtimes[j] < currentdate))
 					  minstart = starttimes[j];
 			  }
 			  
@@ -366,11 +366,21 @@ function parseFriends(req,res)
 					  minend = endtimes[k]
 				  }
 			  }
+			  console.log(minstart + "45" + minend)
 			  
+			  var hour, min;
 			  
+			  hour = minstart.getHours();
+			  min = minstart.getMinutes();
+			  
+			  var minstartstring = hour + ":" + min;
+			  
+			  hour = minend.getHours();
+			  min = minend.getMinutes();
+			  var minendstring = hour + ":" + min;
 			  
 			 
-				  peopleData[peopleData.length] = new personData(minstart,minend,jsonretrieve.username, busy, jsonretrieve.coordlat, jsonretrieve.coordlong);
+				  peopleData[peopleData.length] = new personData(minstartstring,minendstring,jsonretrieve.username, busy, jsonretrieve.coordlat, jsonretrieve.coordlong);
 			
 		  }
 
