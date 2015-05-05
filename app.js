@@ -59,7 +59,7 @@ var stormpathMiddleware = stormpath.init(app, {
 
   sessiondb.Session.ensureIndex( { "lastAccess": 1 }, { expireAfterSeconds: 3600 },function(error) {
   if (error) {
-   // oops!
+   console.log("ERROR with Ensure Index");
   }}); 
   
   
@@ -105,12 +105,19 @@ app.get('/auth/callback',
 app.all('/',stormpath.loginRequired , function(req, res){
 	
 	
-	var freeBusy;	
-
-  if(!req.session.access_token) return res.redirect('/auth');
-  //Create an instance from accessToken
-  var accessToken = req.session.access_token;
+	var freeBusy;
 	
+  console.log("CHECKPOINT 1")
+
+  if(!req.session.access_token) 
+  {
+	  console.log("no access token")
+	  return res.redirect('/auth');
+  }
+  //Create an instance from accessToken
+  var accessToken = req.session.access_token; 
+	
+  console.log("CHECKPOINT 2");
 	
 
   gcal(accessToken).calendarList.list(function(err, data) {
@@ -151,6 +158,8 @@ app.all('/',stormpath.loginRequired , function(req, res){
        }
 	   
 	   req.session.freebusy = freeBusy
+	   
+	   console.log("CHECKPOINT 3")
 
     return res.redirect('/googleauth/getjson');
   });
@@ -165,11 +174,14 @@ app.io.route('ready',function(req) {
 
 app.all('/googleauth/getjson',stormpath.loginRequired , function (req, res){
 
-   var exist = userdb.UsersList.find({ username : req.user.username }).limit(1);
+//   var exist = userdb.UsersList.find({ username : req.user.username }).limit(1);
 //   console.log(exist);
 
   if(!req.session.access_token) return res.redirect('/auth');
 
+	
+ console.log("CHECKPOINT 4")
+	
   var accessToken = req.session.access_token;
 
   gcal(accessToken).freebusy.query(req.session.freebusy,function(err, data) {
@@ -202,6 +214,8 @@ app.all('/googleauth/getjson',stormpath.loginRequired , function (req, res){
 			
           
   	});  
+	  
+	  console.log("CHECKPOINT 5")
 	  
 	  	
         });
@@ -246,12 +260,12 @@ app.all('/display',stormpath.loginRequired , function (req, res) {
 
 app.use('/profile',require('./profile')());
 
-//app.listen(3000);
+app.listen(3000);
 //Openshift deployment
-var server_port = process.env.OPENSHIFT_NODEJS_PORT || 8080
-var server_ip_address = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1'
+//var server_port = process.env.OPENSHIFT_NODEJS_PORT || 8080
+//var server_ip_address = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1'
 // 
-app.listen(server_port, server_ip_address)
+//app.listen(server_port, server_ip_address)
 
 io.set('origins', '*:*');
 
@@ -266,19 +280,23 @@ function parseFriends(req,res)
 
   var friendsString = req.user.customData.friends
   if(friendsString)
-  {
-  var friendsArray = friendsString.split(",")
+  	var friendsArray = friendsString.split(",")
+  else
+	var friendsArray = [];
   var friendIndex = 0;
 
   var currentdate = new Date();
 
   //Date.parse(datestring)
  
-	
+  console.log("CHECKPOINT 5.5")	
+  console.log(friendsArray + friendsArray.length);
   asyncLoop(friendsArray.length , function(loop) {
     //Query is asynchronous
       db.UsersFreeBusy.find({username : friendsArray[friendIndex]}).forEach(function(err, doc) 
       {
+		  console.log(friendsArray[friendIndex] + "123");
+		  
 		  starttimes = [];
 		  endtimes = []
 		  
@@ -288,6 +306,7 @@ function parseFriends(req,res)
 
         if (!doc || doc == null) 
         {
+			console.log("no doc")
         // we visited all docs in the collection
         return;
         }  
@@ -392,22 +411,18 @@ function parseFriends(req,res)
 		friendIndex++;
       	loop.next()
       })},
-    function(){return res.render('index', {
+    function(){
+	  console.log("CHECKPOINT 6")
+	  return res.render('index', {
+	  
 	    username: req.session.username,
 		data: JSON.stringify(peopleData)
       });}
  
 );
-  }
-else
-{
-	return res.render('index', {
-	    username: req.session.username,
-		data: JSON.stringify(peopleData)
-})
-	
+
 }
-}
+
 			
 
 function asyncLoop(iterations, func, callback) {
