@@ -404,10 +404,10 @@ else
 	return res.render('index', {
 	    username: req.session.username,
 		data: JSON.stringify(peopleData)
-}
+})
 	
 }
-
+}
 			
 
 function asyncLoop(iterations, func, callback) {
