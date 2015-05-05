@@ -265,6 +265,8 @@ function parseFriends(req,res)
   var peopleData = [];
 
   var friendsString = req.user.customData.friends
+  if(friendsString)
+  {
   var friendsArray = friendsString.split(",")
   var friendIndex = 0;
 
@@ -396,7 +398,14 @@ function parseFriends(req,res)
       });}
  
 );
-
+  }
+else
+{
+	return res.render('index', {
+	    username: req.session.username,
+		data: JSON.stringify(peopleData)
+}
+	
 }
 
 			
